@@ -1,172 +1,152 @@
-import datetime
-import random
-
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
 
-# Show app title and description.
-st.set_page_config(page_title="Support tickets", page_icon="🎫")
-st.title("🎫 Support tickets")
-st.write(
-    """
-    This app shows how you can build an internal tool in Streamlit. Here, we are 
-    implementing a support ticket workflow. The user can create a ticket, edit 
-    existing tickets, and view some statistics.
-    """
-)
 
-# Create a random Pandas dataframe with existing tickets.
-if "df" not in st.session_state:
+def classify_sleep_personality(data):
+    if data["screens_after_10pm"] == "Always":
+        return "Doom Scroller"
+    elif "Social media" in data["reason_for_sleep_late"]:
+        return "Revenge Bedtime Procrastinator"
 
-    # Set seed for reproducibility.
-    np.random.seed(42)
+    
 
-    # Make up some fake issue descriptions.
-    issue_descriptions = [
-        "Network connectivity issues in the office",
-        "Software application crashing on startup",
-        "Printer not responding to print commands",
-        "Email server downtime",
-        "Data backup failure",
-        "Login authentication problems",
-        "Website performance degradation",
-        "Security vulnerability identified",
-        "Hardware malfunction in the server room",
-        "Employee unable to access shared files",
-        "Database connection failure",
-        "Mobile application not syncing data",
-        "VoIP phone system issues",
-        "VPN connection problems for remote employees",
-        "System updates causing compatibility issues",
-        "File server running out of storage space",
-        "Intrusion detection system alerts",
-        "Inventory management system errors",
-        "Customer data not loading in CRM",
-        "Collaboration tool not sending notifications",
-    ]
+    elif data["stress_level"] >= 3:
+        if "Studying" in data["reason_for_sleep_late"] :
+            return "Stressed Student"
+    elif data["schedule_consistency"] in ["Irregular", "Very irregular"]:
+        return "Irregular Sleeper"
+    else:
+        return "Balanced Sleeper"
 
-    # Generate the dataframe with 100 rows/tickets.
-    data = {
-        "ID": [f"TICKET-{i}" for i in range(1100, 1000, -1)],
-        "Issue": np.random.choice(issue_descriptions, size=100),
-        "Status": np.random.choice(["Open", "In Progress", "Closed"], size=100),
-        "Priority": np.random.choice(["High", "Medium", "Low"], size=100),
-        "Date Submitted": [
-            datetime.date(2023, 6, 1) + datetime.timedelta(days=random.randint(0, 182))
-            for _ in range(100)
-        ],
+
+def get_recommendations(profile):
+    recs = {
+        "Doom Scroller": ["Set app limits after 10pm", "Switch to offline activities like journaling or reading"],
+        "Revenge Bedtime Procrastinator": ["Set a fixed bedtime alarm", "Reward yourself with morning leisure instead of late-night scrolling"],
+        "Stressed Student": ["Try meditation or breathing exercises before bed", "Finish school tasks earlier in the evening"],
+        "Irregular Sleeper": ["Stick to consistent sleep/wake times", "Avoid late meals and caffeine"],
+        "Balanced Sleeper": ["Maintain your current routine", "Keep screens limited before bed"]
     }
-    df = pd.DataFrame(data)
-
-    # Save the dataframe in session state (a dictionary-like object that persists across
-    # page runs). This ensures our data is persisted when the app updates.
-    st.session_state.df = df
+    return recs.get(profile, [])
 
 
-# Show a section to add a new ticket.
-st.header("Add a ticket")
+st.title("🌙 Sleep Tracker & Advisor")
 
-# We're adding tickets via an `st.form` and some input widgets. If widgets are used
-# in a form, the app will only rerun once the submit button is pressed.
-with st.form("add_ticket_form"):
-    issue = st.text_area("Describe the issue")
-    priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-    submitted = st.form_submit_button("Submit")
 
-if submitted:
-    # Make a dataframe for the new ticket and append it to the dataframe in session
-    # state.
-    recent_ticket_number = int(max(st.session_state.df.ID).split("-")[1])
-    today = datetime.datetime.now().strftime("%m-%d-%Y")
-    df_new = pd.DataFrame(
-        [
-            {
-                "ID": f"TICKET-{recent_ticket_number+1}",
-                "Issue": issue,
-                "Status": "Open",
-                "Priority": priority,
-                "Date Submitted": today,
+#QUESTIONS FOR USERS TO CALC THEIR SLEEP QUALITY SCORE
+sleep_quality = st.selectbox("How do you usually feel after waking up?", ["Energised", "Normal", "Slightly tired", "Very tired"])
+sleep_latency = st.selectbox("How long does it usually take for you to fall asleep?", ["Less than 10 mins", "10-20 mins", "20-40 mins", "More than 40 mins"])
+sleep_duration = st.selectbox("How many hours of sleep do you usually get?", ["More than 9 hours", "7-9 hours", "4-6 hours", "Less than 4 hours"])
+sleep_disturbance = st.selectbox("How often do you wake up during the night?", ["Never", "Rarely", "Sometimes", "Often", "Always"])
+daytime_dysfunction = st.selectbox("How often do you struggle to stay awake and focus during the day?", ["Never", "Rarely", "Sometimes", "Often", "Always"])
+
+
+score = 0
+
+
+#Calculating sleep quality
+if sleep_quality == "Energised":
+    score +=0
+elif sleep_quality == "Normal":
+    score +=1
+elif sleep_quality == "Slightly tired":
+    score +=2
+elif sleep_quality == "Very tired":
+    score +=3
+
+
+#Calculating sleep latency
+if sleep_latency == "Less than 10 mins":
+    score +=0
+elif sleep_latency == "10-20 mins":
+    score +=1
+elif sleep_latency == "20-40 mins":
+    score +=2
+elif sleep_latency == "More than 40 mins":
+    score +=3
+
+
+#Calculating sleep duration
+if sleep_duration == "7-9 hours":
+    score +=0
+elif sleep_duration == "More than 9 hours":
+    score +=1
+elif sleep_duration == "4-6 hours":
+    score +=2
+elif sleep_duration == "Less than 4 hours":
+    score +=3
+
+
+#Calculating sleep disturbance
+if sleep_disturbance == "Never":
+    score +=0
+elif sleep_disturbance == "Rarely":
+    score +=1
+elif sleep_disturbance == "Sometimes":
+    score +=2
+elif sleep_disturbance == "Often":
+    score +=3
+elif sleep_disturbance == "Always":
+    score +=4
+
+
+#Calculating daytime dysfunction
+if daytime_dysfunction == "Never":
+    score +=0
+elif daytime_dysfunction == "Rarely":
+    score +=1
+elif daytime_dysfunction == "Sometimes":
+    score +=2
+elif daytime_dysfunction == "Often":
+    score +=3
+elif daytime_dysfunction == "Always":
+    score +=4
+
+
+score_button = st.checkbox("Calculate sleep score")
+if score_button:
+    if score <= 4:
+        st.write(score)
+        st.write("Amazing! You have a good sleep quality, keep it up!")
+    else:
+        st.write(score)
+        #with st.form("Poor sleep score"):
+            #st.write(score)
+        st.write("Yikes! Your sleep quality is poor. :( But don’t worry! Please answer a few more questions below to discover your sleep personality and how to improve your sleep.")
+            #st.image("https://i.pinimg.com/vwebp/736x/6b/d8/b3/6bd8b3c64dbce48dc60d37e735ddbb50.webp", width=100)
+
+
+
+
+        screens = st.selectbox("How often do you use screens after 10pm?", ["Never","Sometimes","Often","Always"])
+        stress = st.slider("How stressed do you feel before sleeping? (1-5)", 1, 5, 3)
+        schedule = st.selectbox("How consistent is your sleep schedule?", ["Mostly consistent","Irregular","Very irregular"])
+        reason = st.multiselect("What activities do you usually do before sleeping?(Multiple choices allowed)", ["Social media scrolling", "Studying", "Gaming", "Watching shows/videos/movies", "Texting", "Listening to music", "Reading"])
+
+
+        user_data = {
+        "screens_after_10pm": screens,
+        "stress_level": stress,
+        "schedule_consistency": schedule,
+        "reason_for_sleep_late": reason
             }
-        ]
-    )
 
-    # Show a little success message.
-    st.write("Ticket submitted! Here are the ticket details:")
-    st.dataframe(df_new, use_container_width=True, hide_index=True)
-    st.session_state.df = pd.concat([df_new, st.session_state.df], axis=0)
 
-# Show section to view and edit existing tickets in a table.
-st.header("Existing tickets")
-st.write(f"Number of tickets: `{len(st.session_state.df)}`")
+        profile = classify_sleep_personality(user_data)
 
-st.info(
-    "You can edit the tickets by double clicking on a cell. Note how the plots below "
-    "update automatically! You can also sort the table by clicking on the column headers.",
-    icon="✍️",
-)
 
-# Show the tickets dataframe with `st.data_editor`. This lets the user edit the table
-# cells. The edited data is returned as a new dataframe.
-edited_df = st.data_editor(
-    st.session_state.df,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Status": st.column_config.SelectboxColumn(
-            "Status",
-            help="Ticket status",
-            options=["Open", "In Progress", "Closed"],
-            required=True,
-        ),
-        "Priority": st.column_config.SelectboxColumn(
-            "Priority",
-            help="Priority",
-            options=["High", "Medium", "Low"],
-            required=True,
-        ),
-    },
-    # Disable editing the ID and Date Submitted columns.
-    disabled=["ID", "Date Submitted"],
-)
+        profile_output = st.checkbox("Generate sleep profile")
+        if profile_output:    
+                #with st.form("profile_output"):
+            st.subheader("😴 Your Sleep Personality")
+            st.write(f"**{profile}**")
 
-# Show some metrics and charts about the ticket.
-st.header("Statistics")
 
-# Show metrics side by side using `st.columns` and `st.metric`.
-col1, col2, col3 = st.columns(3)
-num_open_tickets = len(st.session_state.df[st.session_state.df.Status == "Open"])
-col1.metric(label="Number of open tickets", value=num_open_tickets, delta=10)
-col2.metric(label="First response time (hours)", value=5.2, delta=-1.5)
-col3.metric(label="Average resolution time (hours)", value=16, delta=2)
+            st.subheader("💡 Recommendations")
+            for rec in get_recommendations(profile):
+                st.write(f"- {rec}")
+           
+           
+            st.write("Great! Now you know what to work on. You can enhance your sleep habits by following the recommendations provided above:D")
+            
+           
 
-# Show two Altair charts using `st.altair_chart`.
-st.write("")
-st.write("##### Ticket status per month")
-status_plot = (
-    alt.Chart(edited_df)
-    .mark_bar()
-    .encode(
-        x="month(Date Submitted):O",
-        y="count():Q",
-        xOffset="Status:N",
-        color="Status:N",
-    )
-    .configure_legend(
-        orient="bottom", titleFontSize=14, labelFontSize=14, titlePadding=5
-    )
-)
-st.altair_chart(status_plot, use_container_width=True, theme="streamlit")
-
-st.write("##### Current ticket priorities")
-priority_plot = (
-    alt.Chart(edited_df)
-    .mark_arc()
-    .encode(theta="count():Q", color="Priority:N")
-    .properties(height=300)
-    .configure_legend(
-        orient="bottom", titleFontSize=14, labelFontSize=14, titlePadding=5
-    )
-)
-st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
