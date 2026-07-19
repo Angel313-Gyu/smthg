@@ -147,6 +147,7 @@ if score_button:
            
            
             st.write("Great! Now you know what to work on. You can enhance your sleep habits by following the recommendations provided above:D")
-            
+            if st.button("Celebrate"):
+                st.balloons()
            
 
