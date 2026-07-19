@@ -1,0 +1,16 @@
+[theme]
+# This changes the background of primary buttons, sliders, and active states
+primaryColor = "#ECB44D" 
+
+# Optional text color configuration
+textColor = "#FFFFFF"
+#app bg color
+backgroundColor = "#191939"
+#dropdowncolour
+secondaryBackgroundColor = "#1B3A68"
+
+baseRadius = "small"
+
+buttonRadius = "large"
+
+showWidgetBorder = true
