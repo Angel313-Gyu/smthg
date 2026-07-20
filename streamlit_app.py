@@ -2,18 +2,18 @@ import streamlit as st
 
 
 def classify_sleep_personality(data):
-    if data["screens_after_10pm"] == "Always":
-        return "Doom Scroller"
-    elif "Social media" in data["reason_for_sleep_late"]:
-        return "Revenge Bedtime Procrastinator"
-
-    
-
-    elif data["stress_level"] >= 3:
-        if "Studying" in data["reason_for_sleep_late"] :
-            return "Stressed Student"
-    elif data["schedule_consistency"] in ["Irregular", "Very irregular"]:
+    if "Irregular" in data["schedule_consistency"] or "Very irregular" in data["schedule_consistency"]:
         return "Irregular Sleeper"
+    if "Always" or "Often" or "Sometimes" or "Never" in data["screens_after_10pm"]:
+        if data["stress_level"] >= 3:
+            if "Studying" in data["reason_for_sleep_late"] :
+                return "Stressed Student"
+    if "Always" in data["screens_after_10pm"] or "Often" in data["screens_after_10pm"]:
+        if "Social media scrolling" in data["reason_for_sleep_late"]:
+            return "Doom Scroller"
+    elif not "Never" in data["screens_after_10pm"]:
+        if "Social media scrolling" in data["reason_for_sleep_late"]:
+            return "Revenge Bedtime Procrastinator"
     else:
         return "Balanced Sleeper"
 
@@ -35,12 +35,23 @@ st.title("🌙 Sleep Tracker & Advisor")
 #QUESTIONS FOR USERS TO CALC THEIR SLEEP QUALITY SCORE
 sleep_quality = st.selectbox("How do you usually feel after waking up?", ["Energised", "Normal", "Slightly tired", "Very tired"])
 sleep_latency = st.selectbox("How long does it usually take for you to fall asleep?", ["Less than 10 mins", "10-20 mins", "20-40 mins", "More than 40 mins"])
-sleep_duration = st.selectbox("How many hours of sleep do you usually get?", ["More than 9 hours", "7-9 hours", "4-6 hours", "Less than 4 hours"])
+#sleep_duration = st.selectbox("How many hours of sleep do you usually get?", ["More than 9 hours", "7-9 hours", "4-6 hours", "Less than 4 hours"])
 sleep_disturbance = st.selectbox("How often do you wake up during the night?", ["Never", "Rarely", "Sometimes", "Often", "Always"])
 daytime_dysfunction = st.selectbox("How often do you struggle to stay awake and focus during the day?", ["Never", "Rarely", "Sometimes", "Often", "Always"])
 
-
+go_to_sleep = st.select_slider("What time do you usually go to sleep? (option starts from 8pm till 3am)", [8,9,10,11,12,1,2,3])
+wake_up = st.slider("What time do you usually wake up? (option starts from 5am till 12pm)", 5,12)
 score = 0
+
+if go_to_sleep>=8 and go_to_sleep <=12:
+    sleep_duration = (12-go_to_sleep) + wake_up
+elif go_to_sleep>=1 and go_to_sleep<=3:
+    sleep_duration = wake_up-go_to_sleep
+
+sleep_button = st.checkbox("Calculate sleep duration")
+if sleep_button:
+    st.write(sleep_duration)
+
 
 
 #Calculating sleep quality
@@ -66,13 +77,13 @@ elif sleep_latency == "More than 40 mins":
 
 
 #Calculating sleep duration
-if sleep_duration == "7-9 hours":
+if (sleep_duration>=7 and sleep_duration <=9):
     score +=0
-elif sleep_duration == "More than 9 hours":
+elif (sleep_duration>9):
     score +=1
-elif sleep_duration == "4-6 hours":
+elif (sleep_duration>=4 and sleep_duration <7):
     score +=2
-elif sleep_duration == "Less than 4 hours":
+elif (sleep_duration <4):
     score +=3
 
 
@@ -118,7 +129,7 @@ if score_button:
 
 
         screens = st.selectbox("How often do you use screens after 10pm?", ["Never","Sometimes","Often","Always"])
-        stress = st.slider("How stressed do you feel before sleeping? (1-5)", 1, 5, 3)
+        stress = st.slider("How stressed do you feel before sleeping? (1:No stress, 5:Very stressed)", 1, 5, 3)
         schedule = st.selectbox("How consistent is your sleep schedule?", ["Mostly consistent","Irregular","Very irregular"])
         reason = st.multiselect("What activities do you usually do before sleeping?(Multiple choices allowed)", ["Social media scrolling", "Studying", "Gaming", "Watching shows/videos/movies", "Texting", "Listening to music", "Reading"])
 
@@ -140,14 +151,22 @@ if score_button:
             st.subheader("😴 Your Sleep Personality")
             st.write(f"**{profile}**")
 
+            if profile == "Irregular Sleeper":
+                st.image("photo_2026-07-20_20-37-05.jpg", width=300)
+            elif profile == "Stressed Student":
+                st.image("photo_2026-07-20_20-37-02.jpg", width=300)
+            elif profile == "Doom Scroller":
+                st.image("photo_2026-07-20_20-37-08.jpg", width=300)
+
 
             st.subheader("💡 Recommendations")
             for rec in get_recommendations(profile):
                 st.write(f"- {rec}")
            
            
-            st.write("Great! Now you know what to work on. You can enhance your sleep habits by following the recommendations provided above:D")
+            st.write("Great! Now you know what to work on. You can enhance your sleep habits by following the recommendations provided above :D")
             if st.button("Celebrate"):
                 st.balloons()
-           
+
+
 
