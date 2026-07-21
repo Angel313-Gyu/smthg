@@ -29,7 +29,7 @@ def get_recommendations(profile):
     return recs.get(profile, [])
 
 
-st.title("🌙 Sleep Tracker & Advisor")
+st.title("🌙 Sleep Advisor")
 
 
 #QUESTIONS FOR USERS TO CALC THEIR SLEEP QUALITY SCORE
