@@ -158,6 +158,8 @@ if score_button:
                 st.image("doomscroller.jpg", width=300)
             elif profile == "Balanced Sleeper":
                 st.image("IMG_0842.png", width=300)
+            elif profile == "Revenge Bedtime Procrastinator":
+                st.image("revenge procrastinator.jpg", width=300)
 
 
             st.write("## :yellow[💡 Recommendations]")
