@@ -147,26 +147,26 @@ if score_button:
 
         profile_output = st.checkbox("Generate sleep profile")
         if profile_output:    
-                #with st.form("profile_output"):
-            st.subheader("😴 Your Sleep Personality")
-            st.write(f"**{profile}**")
+            st.write("## :blue[😴 Your Sleep Personality]")
+            st.write(f"### **{profile}**")
 
             if profile == "Irregular Sleeper":
-                st.image("photo_2026-07-20_20-37-05.jpg", width=300)
+                st.image("irregular slipper.jpg", width=300)
             elif profile == "Stressed Student":
-                st.image("photo_2026-07-20_20-37-02.jpg", width=300)
+                st.image("stressed student.jpg", width=300)
             elif profile == "Doom Scroller":
-                st.image("photo_2026-07-20_20-37-08.jpg", width=300)
+                st.image("doomscroller.jpg", width=300)
+            elif profile == "Balanced Sleeper":
+                st.image("IMG_0842.png", width=300)
 
 
-            st.subheader("💡 Recommendations")
+            st.write("## :yellow[💡 Recommendations]")
             for rec in get_recommendations(profile):
                 st.write(f"- {rec}")
            
            
             st.write("Great! Now you know what to work on. You can enhance your sleep habits by following the recommendations provided above :D")
-            if st.button("Celebrate"):
-                st.balloons()
+
 
 
 
